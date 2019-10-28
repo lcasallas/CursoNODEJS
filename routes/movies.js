@@ -1,5 +1,14 @@
 const express = require('express');
+const joi = require('@hapi/joi');
 const MoviesServices = require('../services/movies');
+
+const {
+  movieIdSchema,
+  createMovieSchema,
+  updateMovieSchema
+} = require('../utils/schemas/movies');
+
+const { validationHandler } = require('../utils/middleware/validationHandler');
 
 function moviesApi(app) {
   const router = express.Router();
@@ -23,22 +32,30 @@ function moviesApi(app) {
   });
 
   //GET id
-  router.get('/:movieId', async function(req, res, next) {
-    const { movieId } = req.params;
+  router.get(
+    '/:movieId',
+    validationHandler(joi.object({ movieId: movieIdSchema }), 'params'),
+    async function(req, res, next) {
+      const { movieId } = req.params;
 
-    try {
-      const movies = await moviesServices.getMovie({ movieId });
-      res.status(200).json({
-        data: movies,
-        message: 'movie retrieved'
-      });
-    } catch (err) {
-      next(err);
+      try {
+        const movies = await moviesServices.getMovie({ movieId });
+        res.status(200).json({
+          data: movies,
+          message: 'movie retrieved'
+        });
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 
   //POST
-  router.post('/', async function(req, res, next) {
+  router.post('/', validationHandler(createMovieSchema), async function(
+    req,
+    res,
+    next
+  ) {
     const { body: movie } = req; //: movie es para coloca un alias a la variable.
     try {
       const createMovieId = await moviesServices.createMovie({ movie });
@@ -53,36 +70,45 @@ function moviesApi(app) {
   });
 
   //PUT
-  router.put('/:movieId', async function(req, res, next) {
-    const { movieId } = req.params;
-    const { body: movie } = req;
-    try {
-      const updatedMovieId = await moviesServices.updateMovie({
-        movieId,
-        movie
-      });
-      res.status(200).json({
-        data: updatedMovieId,
-        message: 'movie updated'
-      });
-    } catch (err) {
-      next(err);
+  router.put(
+    '/:movieId',
+    validationHandler(joi.object({ movieId: movieIdSchema }), 'params'),
+    validationHandler(updateMovieSchema),
+    async function(req, res, next) {
+      const { movieId } = req.params;
+      const { body: movie } = req;
+      try {
+        const updatedMovieId = await moviesServices.updateMovie({
+          movieId,
+          movie
+        });
+        res.status(200).json({
+          data: updatedMovieId,
+          message: 'movie updated'
+        });
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 
   //DELETE
-  router.delete('/:movieId', async function(req, res, next) {
-    const { movieId } = req.params;
-    try {
-      const deletedMovieId = await moviesServices.deleteMovie({ movieId });
-      res.status(200).json({
-        data: deletedMovieId,
-        message: 'movie deleted'
-      });
-    } catch (err) {
-      next(err);
+  router.delete(
+    '/:movieId',
+    validationHandler(joi.object({ movieId: movieIdSchema }), 'params'),
+    async function(req, res, next) {
+      const { movieId } = req.params;
+      try {
+        const deletedMovieId = await moviesServices.deleteMovie({ movieId });
+        res.status(200).json({
+          data: deletedMovieId,
+          message: 'movie deleted'
+        });
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 }
 
 module.exports = moviesApi;
