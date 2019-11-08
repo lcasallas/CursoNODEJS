@@ -13,4 +13,4 @@ function validationHandler(schema, check = 'body') {
   };
 }
 
-module.exports = { validationHandler, validate };
+module.exports = validationHandler;

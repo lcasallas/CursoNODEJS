@@ -1,6 +1,5 @@
 const moviesMock = [
   {
-    id: '24274762-01b2-44bc-a436-2a0b90e21682',
     title: 'Wee Willie Winkie',
     year: 2003,
     cover: 'http://dummyimage.com/206x134.bmp/ff4444/ffffff',
